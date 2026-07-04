@@ -1,0 +1,17 @@
+{
+  "wake_words": [
+    "hey assistant",
+    "ok assistant",
+    "hello assistant"
+  ],
+  "default_module": "voice_to_voice",
+  "language": "en-US",
+  "voice_settings": {
+    "rate": 175,
+    "volume": 0.9,
+    "voice_id": null
+  },
+  "offline_mode": false,
+  "context_memory_size": 10,
+  "auto_save": true
+}

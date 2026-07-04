@@ -1,0 +1,24 @@
+# Virtual environment
+myenv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment and secret files
+.env
+.env.*
+!.env.example
+.openrouter_api_key
+openrouter_key.txt
+
+# VS Code settings
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log

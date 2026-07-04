@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Ayesha · personal AI demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(145deg, #f9f2f5 0%, #e8eef9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            padding: 1rem;
+        }
+        .chat-card {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 2.5rem 2.5rem 2rem 2rem;
+            box-shadow: 0 25px 45px -10px rgba(37, 50, 80, 0.25), inset 0 1px 3px rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.6);
+            overflow: hidden;
+        }
+        /* header — personal flair */
+        .chat-header {
+            background: #1e2b3f;
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 4px solid #b697cf;
+        }
+        .avatar {
+            background: #d9c3e9;
+            width: 55px;
+            height: 55px;
+            border-radius: 40% 60% 40% 60% / 50% 40% 60% 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e2b3f;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+        .title h2 {
+            font-weight: 500;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+        .title p {
+            font-size: 0.85rem;
+            opacity: 0.75;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .title p span {
+            background: #b697cf;
+            padding: 0.15rem 0.7rem;
+            border-radius: 30px;
+            color: #1e2b3f;
+            font-weight: 500;
+            font-size: 0.7rem;
+        }
+        /* message window */
+        .chat-window {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 2rem 1.8rem 1.2rem 1.8rem;
+            max-height: 460px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.3rem;
+            scroll-behavior: smooth;
+        }
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 85%;
+        }
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .avatar-small {
+            width: 38px;
+            height: 38px;
+            background: #cfddee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1e3b5c;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            flex-shrink: 0;
+        }
+        .message.user .avatar-small {
+            background: #b697cf;
+            color: white;
+        }
+        .bubble {
+            background: white;
+            padding: 1rem 1.4rem;
+            border-radius: 1.5rem 1.5rem 1.5rem 0.3rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: #1f2a3f;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        .message.user .bubble {
+            background: #1e2b3f;
+            color: white;
+            border-radius: 1.5rem 1.5rem 0.3rem 1.5rem;
+            border: 1px solid #3d506e;
+        }
+        .bubble p {
+            margin: 0 0 0.35rem 0;
+        }
+        .bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .bubble strong {
+            font-weight: 600;
+            color: #b14f8f;
+        }
+        .message.user .bubble strong {
+            color: #ffdb8a;
+        }
+        .timestamp {
+            font-size: 0.65rem;
+            opacity: 0.5;
+            margin-top: 4px;
+            padding-left: 6px;
+        }
+        /* input area */
+        .chat-input-area {
+            background: white;
+            padding: 1.4rem 2rem 1.8rem 2rem;
+            border-top: 2px solid rgba(182,151,207,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        #user-query {
+            flex: 1;
+            padding: 1rem 1.4rem;
+            border: 2px solid #e5deec;
+            border-radius: 60px;
+            font-size: 1rem;
+            background: #fbfaff;
+            outline: none;
+            transition: 0.2s;
+        }
+        #user-query:focus {
+            border-color: #b697cf;
+            box-shadow: 0 0 0 3px rgba(182,151,207,0.3);
+        }
+        #send-btn {
+            background: #1e2b3f;
+            border: none;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 16px rgba(0,20,40,0.2);
+            border: 1px solid #ffffff40;
+        }
+        #send-btn:hover {
+            background: #b697cf;
+            transform: scale(1.05);
+            color: #1e2b3f;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-card">
+        <!-- header with ayesha's info -->
+        <div class="chat-header">
+            <div class="avatar">AB</div>
+            <div class="title">
+                <h2>Ayesha Bashir</h2>
+                <p>
+                    <span>CS graduate</span> 
+                    <span>🏸 badminton</span>
+                    <span>🚀 AI Engineer (goal)</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- chat messages injected here -->
+        <div id="chatWindow" class="chat-window">
+            <!-- initial bot message will be inserted via JS -->
+        </div>
+
+        <!-- input + footer -->
+        <div class="chat-input-area">
+            <div class="input-row">
+                <input type="text" id="user-query" placeholder="Ask me about Ayesha ..." autocomplete="off">
+                <button id="send-btn" title="send">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- profile data -------------
+            const profile = {
+                name: "Ayesha Bashir",
+                education: "BS in Computer Science from Superior University, Lahore",
+                current: "teaching online (Google Meet / Zoom), taking AI & Social Media Management courses",
+                experience: "freelance academic content writer + internship as Corporate Liaison Manager",
+                strengths: "hardworking",
+                weakness: "too detail-oriented",
+                hobbies: "playing badminton and running",
+                technicalSkills: "web development (HTML, CSS, Python, JavaScript, PHP), Microsoft Office, Canva",
+                certifications: "certified courses in Barista and Fast Food",
+                freelancing: "experience in freelancing and digital marketing",
+                goal: "to become an AI Engineer",
+                // for demo we also add a short intro
+                intro: "Hey! I'm Ayesha – a CS grad, online educator, and future AI engineer. Ask me anything about my background, skills, or goals!"
+            };
+
+
+            // In a real app you'd call a secure backend endpoint for AI responses.
+            // Never store your API key directly in browser-side JavaScript.
+            // For this demo, the browser sends requests to the backend and the server uses a secure key from environment variables.
+
+            const apiEndpoint = 'http://localhost:8000/api/chat';
+            const chatWindow = document.getElementById('chatWindow');
+            const inputField = document.getElementById('user-query');
+            const sendBtn = document.getElementById('send-btn');
+
+            async function sendMessageToBackend(text) {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text, mode: 'text' })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Backend request failed');
+                }
+
+                const data = await response.json();
+                return data.response || 'Sorry, I could not get an answer from the server.';
+            }
+
+
+            function appendMessage(sender, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message', sender);
+
+                const avatarDiv = document.createElement('div');
+                avatarDiv.classList.add('avatar-small');
+                avatarDiv.textContent = sender === 'bot' ? 'AB' : 'me';
+
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.classList.add('bubble');
+
+                // simple formatting: replace ** with <strong> (quick & dirty)
+                const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                bubbleDiv.innerHTML = `<p>${formattedText.replace(/\n/g, '</p><p>')}</p>`;
+
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const timeSpan = document.createElement('div');
+                timeSpan.classList.add('timestamp');
+                timeSpan.textContent = time;
+
+                bubbleDiv.appendChild(timeSpan);
+
+                if (sender === 'bot') {
+                    messageDiv.appendChild(avatarDiv);
+                    messageDiv.appendChild(bubbleDiv);
+                } else {
+                    messageDiv.appendChild(bubbleDiv);
+                    messageDiv.appendChild(avatarDiv);
+                }
+
+                chatWindow.appendChild(messageDiv);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+
+            // ----- simulate a contextual reply based on profile -----
+            function generateBotReply(userMessage) {
+                const msg = userMessage.toLowerCase();
+                // base info
+                let reply = "";
+
+                if (msg.includes('hello') || msg.includes('hi ') || msg.includes('hey') || msg === 'hi') {
+                    reply = `👋 Hello! I'm **Ayesha Bashir**. ${profile.intro}`;
+                }
+                else if (msg.includes('education') || msg.includes('study') || msg.includes('degree') || msg.includes('graduate')) {
+                    reply = `🎓 I completed my **${profile.education}**. Currently I'm expanding into AI and social media management.`;
+                }
+                else if (msg.includes('work') || msg.includes('job') || msg.includes('experience') || msg.includes('intern')) {
+                    reply = `💼 I have freelance academic writing experience, plus an internship as a **Corporate Liaison Manager**. I also teach online via Google Meet and Zoom.`;
+                }
+                else if (msg.includes('skill') || msg.includes('technical') || msg.includes('program') || msg.includes('web')) {
+                    reply = `🛠️ My skills include **web development** (HTML, CSS, Python, JavaScript, PHP), **Microsoft Office**, and **Canva**. I also have barista & fast food certifications!`;
+                }
+                else if (msg.includes('strength') || msg.includes('strong')) {
+                    reply = `💪 My main strength is being **hardworking**. I really commit to what I do.`;
+                }
+                else if (msg.includes('weakness') || msg.includes('weak') || msg.includes('detail')) {
+                    reply = `🔍 I can be **too detail-oriented** — I sometimes spend extra time perfecting small things, but it ensures quality!`;
+                }
+                else if (msg.includes('hobby') || msg.includes('hobbies') || msg.includes('free time') || msg.includes('badminton') || msg.includes('run')) {
+                    reply = `🏸 I love **playing badminton** and **running** — keeps me energized!`;
+                }
+                else if (msg.includes('goal') || msg.includes('aim') || msg.includes('future') || msg.includes('aspire')) {
+                    reply = `🎯 My ultimate goal is to become an **AI Engineer**. I'm actively taking AI courses to get there.`;
+                }
+                else if (msg.includes('certification') || msg.includes('certified') || msg.includes('barista') || msg.includes('fast food')) {
+                    reply = `🍕 I hold **certified courses in Barista and Fast Food** — a tasty combination with tech!`;
+                }
+                else if (msg.includes('freelance') || msg.includes('digital marketing') || msg.includes('marketing')) {
+                    reply = `📈 Yes, I have freelancing experience and background in **digital marketing** and academic writing.`;
+                }
+                else if (msg.includes('openrouter') || msg.includes('api') || msg.includes('key')) {
+                    reply = "🔐 I don't store an API key in the browser. This demo sends requests to a secure backend instead.";
+                }
+                else if (msg.includes('teach') || msg.includes('teaching') || msg.includes('online class')) {
+                    reply = `👩‍🏫 I'm currently teaching online using **Google Meet & Zoom**, and also taking AI & social media management courses.`;
+                }
+                else {
+                    // catch-all but try to use something from profile
+                    reply = `Thanks for asking! 😊 I'm Ayesha — ${profile.education}. I love badminton, web dev, and my goal is AI engineering. Ask me more! (you can ask about skills, hobbies, weakness, etc.)`;
+                }
+
+                // append a tiny bit of personality if reply is short
+                if (reply.length < 60 && !reply.includes('?')) {
+                    reply += " 🤗 feel free to dig deeper!";
+                }
+                return reply;
+            }
+
+            // ----- handle sending message -----
+            async function handleUserMessage() {
+                const text = inputField.value.trim();
+                if (text === "") return;
+                appendMessage('user', text);
+                inputField.value = "";
+
+                try {
+                    const botReply = await sendMessageToBackend(text);
+                    appendMessage('bot', botReply);
+                } catch (error) {
+                    setTimeout(() => {
+                        const botReply = generateBotReply(text);
+                        appendMessage('bot', botReply);
+                    }, 400);
+                }
+            }
+
+            // ----- reset chat to just welcome message -----
+            function resetChat() {
+                chatWindow.innerHTML = ''; 
+                // welcome message
+                const welcome = "👩‍💻 **Hi, I'm Ayesha Bashir**  — your Personal AI Assistant.\n\nI studied CS at Superior University, Lahore. I teach online, love badminton, and I'm working toward becoming an AI Engineer. Ask me about my skills, experience, or even my weakness! ";
+                appendMessage('bot', welcome);
+            }
+
+            // event listeners
+            sendBtn.addEventListener('click', handleUserMessage);
+            inputField.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleUserMessage();
+                }
+            });
+
+            // initialize
+            resetChat();
+
+            // optional: show the frontend/backend mode for debugging
+            console.log('Frontend is using backend chat API at', apiEndpoint);
+        })();
+    </script>
+    <!-- Extra note: This demo routes chat requests through the backend. The frontend does not store any secret key. -->
+</body>
+</html>
